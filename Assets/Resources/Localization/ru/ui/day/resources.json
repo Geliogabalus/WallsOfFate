@@ -1,0 +1,9 @@
+[
+	{"key": "resources","value": "Ресурсы крепости"},
+	{"key": "money","value": "Казсна"},
+	{"key": "food","value": "Провиант"},
+	{"key": "satisfaction","value": "Довольство"},
+	{"key": "strength","value": "Дружина"},
+	{"key": "back-butt","value": "Вернуться в крепость"},
+	{"key": "continue-butt","value": "Начать новый день"}
+]

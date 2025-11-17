@@ -1,0 +1,6 @@
+[
+	{"key": "continue","value": "Continue"},
+	{"key": "new-game","value": "New game"},
+	{"key": "settings","value": "Settings"},
+	{"key": "exit","value": "Exit"}
+]

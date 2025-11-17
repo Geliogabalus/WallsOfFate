@@ -1,0 +1,11 @@
+[
+	{"key": "resources","value": "Fortress resources"},
+	{"key": "money","value": "Coffers"},
+	{"key": "food","value": "Провиант"},
+	{"key": "satisfaction","value": "Provisions"},
+	{"key": "strength","value": "Army"},
+	{"key": "back-butt","value": "Return to the fortress"},
+	{"key": "continue-butt","value": "Start a new day"},
+	{"key": "main-menu-butt","value": "Main menu"},
+	{"key": "new-game-butt","value": "New day"}
+]

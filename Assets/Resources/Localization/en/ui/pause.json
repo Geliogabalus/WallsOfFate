@@ -1,0 +1,7 @@
+[
+	{"key": "continue","value": "Continue"},
+	{"key": "save","value": "Save"},
+	{"key": "load","value": "Load"},
+	{"key": "settings","value": "Settings"},
+	{"key": "exit","value": "Exit"}
+]

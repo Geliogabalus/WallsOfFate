@@ -1,0 +1,6 @@
+[
+	{"key": "sounds","value": "SFX"},
+	{"key": "music","value": "Music"},
+	{"key": "system","value": "System"},
+	{"key": "language","value": "Language"}
+]

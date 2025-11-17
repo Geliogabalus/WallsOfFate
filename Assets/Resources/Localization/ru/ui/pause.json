@@ -1,0 +1,7 @@
+[
+	{"key": "continue","value": "Продолжить"},
+	{"key": "save","value": "Сохранить"},
+	{"key": "load","value": "Загрузить"},
+	{"key": "settings","value": "Настройки"},
+	{"key": "exit","value": "Выход"}
+]
