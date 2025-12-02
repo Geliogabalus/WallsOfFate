@@ -20,13 +20,13 @@ public class AudiencePool : MonoBehaviour
         ResetPool();                                             // ← первый запуск
 
         /* подписываемся на «новую игру» */
-        NewGameButton.NewGameStarted += ResetPool;                 // см. пункт 2
+        Game.NewGameButton.NewGameStarted += ResetPool;                 // см. пункт 2
     }
 
     private void OnDestroy()
     {
         if (Instance == this)
-            NewGameButton.NewGameStarted -= ResetPool;
+            Game.NewGameButton.NewGameStarted -= ResetPool;
     }
 
     /* ---------- главное нововведение ---------- */

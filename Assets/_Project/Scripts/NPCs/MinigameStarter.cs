@@ -104,7 +104,7 @@ public class MinigameStarter : MonoBehaviour
         GameObject resultPanel = winnerName == "Player" ? _winPanel : _losePanel;
         if(winnerName != "Player" && DialogueManager.GetInstance().PowerCheckPrefab.name == _bossPrefab.name)
         {
-            GameResources.GameResources.ChangePeopleSatisfaction(-1000); // Уменьшаем PeopleSatisfaction
+            Game.Resources.ChangePeopleSatisfaction(-1000); // Уменьшаем PeopleSatisfaction
             GameObject objectToDestroy = GameObject.Find("Atash(clone)");
             if (objectToDestroy != null) {
                 Destroy(objectToDestroy);
@@ -114,7 +114,7 @@ public class MinigameStarter : MonoBehaviour
         //else if (winnerName == "Player" && DialogueManager.GetInstance().PowerCheckPrefab.name.Contains("Atash"))
         else if (winnerName == "Player" && DialogueManager.GetInstance().PowerCheckPrefab.name == _bossPrefab.name)
         {
-            GameResources.GameResources.ChangePeopleSatisfaction(1000); // Уменьшаем PeopleSatisfaction
+            Game.Resources.ChangePeopleSatisfaction(1000); // Уменьшаем PeopleSatisfaction
             GameObject objectToDestroy = GameObject.Find("Atash(clone)");
             if (objectToDestroy != null) {
                 Destroy(objectToDestroy);
@@ -122,11 +122,11 @@ public class MinigameStarter : MonoBehaviour
         }
         if (winnerName == "Player" && DialogueManager.GetInstance().PowerCheckPrefab != _trainingPrefab)
         {
-            GameResources.GameResources.ChangeCastleStrength(10); // Увеличиваем CastleStrength
+            Game.Resources.ChangeCastleStrength(10); // Увеличиваем CastleStrength
         }
         else if(winnerName != "Player" && DialogueManager.GetInstance().PowerCheckPrefab != _trainingPrefab)
         {
-            GameResources.GameResources.ChangeCastleStrength(-1); // Уменьшаем PeopleSatisfaction
+            Game.Resources.ChangeCastleStrength(-1); // Уменьшаем PeopleSatisfaction
         }
         if (resultPanel != null)
         {

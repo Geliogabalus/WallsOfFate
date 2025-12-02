@@ -197,16 +197,16 @@ public class InteractableItem : MonoBehaviour, ITriggerable
         switch (resourceType)
         {
             case ResourceType.Gold:
-                GameResources.GameResources.ChangeGold(amount);
+                Game.Resources.ChangeGold(amount);
                 break;
             case ResourceType.Food:
-                GameResources.GameResources.ChangeFood(amount);
+                Game.Resources.ChangeFood(amount);
                 break;
             case ResourceType.PeopleSatisfaction:
-                GameResources.GameResources.ChangePeopleSatisfaction(amount);
+                Game.Resources.ChangePeopleSatisfaction(amount);
                 break;
             case ResourceType.CastleStrength:
-                GameResources.GameResources.ChangeCastleStrength(amount);
+                Game.Resources.ChangeCastleStrength(amount);
                 break;
         }
 

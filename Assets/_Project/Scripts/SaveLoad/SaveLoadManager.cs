@@ -1,4 +1,4 @@
-using GameResources;
+using Game;
 using Quest;
 using System.Collections.Generic;
 using System.IO;
@@ -7,190 +7,180 @@ using UnityEngine.SceneManagement;
 using Zenject;
 using UnityEngine.UI;
 
-public sealed class SaveLoadManager : MonoBehaviour
+namespace Game
 {
-    private static Transform _playerTransform;
-
-    // Полный набор загрузчиков (используется при загрузке сохранённой игры)
-    private ISaveLoader[] saveLoaders;
-    // Набор загрузчиков, необходимых для инициализации без загрузки позиции игрока.
-    private ISaveLoader[] requiredSaveLoaders;
-
-    // Флаг для определения начала новой игры
-    public bool StartNewGame = false;
-
-    // Задаем стартовую точку через инспектор
-    [SerializeField] private Transform spawnPoint;
-
-    [Inject]
-    private void Construct(PlayerMoveController controller)
+    public static class SaveLoadManager
     {
-        _playerTransform = controller.transform;
-    }
+        private static Transform _playerTransform;
 
-    private void Awake()
-    {
-        // Полный набор загрузчиков – используется, например, при продолжении игры.
-        saveLoaders = new ISaveLoader[]
+        // РџРѕР»РЅС‹Р№ РЅР°Р±РѕСЂ Р·Р°РіСЂСѓР·С‡РёРєРѕРІ (РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё Р·Р°РіСЂСѓР·РєРµ СЃРѕС…СЂР°РЅС‘РЅРЅРѕР№ РёРіСЂС‹)
+        private ISaveLoader[] saveLoaders;
+        // РќР°Р±РѕСЂ Р·Р°РіСЂСѓР·С‡РёРєРѕРІ, РЅРµРѕР±С…РѕРґРёРјС‹С… РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Р±РµР· Р·Р°РіСЂСѓР·РєРё РїРѕР·РёС†РёРё РёРіСЂРѕРєР°.
+        private ISaveLoader[] requiredSaveLoaders;
+
+        private void Awake()
         {
-            new QuestSaveLoader(),
-            new ResourceSaveLoader(),
-            new PlayerSaveLoader(_playerTransform),
-            new CollectionSaveLoader(AssembledPickups.GetAllPickups()),
-        };
-
-        // Набор загрузчиков, которые НЕ должны перезаписывать позицию игрока.
-        // Убираем PlayerSaveLoader, чтобы позиция игрока оставалась такой, какой она определена на сцене.
-        requiredSaveLoaders = new ISaveLoader[]
-        {
-            new ResourceSaveLoader(),
-            // new PlayerSaveLoader(_playerTransform), // не загружаем позицию игрока
-            new CollectionSaveLoader(AssembledPickups.GetAllPickups()),
-            new InteractableItemSaveLoader(),
-            new QuestSaveLoader(),
-        };
-    }
-
-    private void Start()
-    {
-        // Ищем кнопку с тегом или по ссылке (упростим до FindObject)
-        Button loadBtn = GameObject.Find("Button_LoadGame")
-                                   ?.GetComponent<Button>();
-        if (loadBtn != null)
-            loadBtn.interactable = CanLoad();   // активна, только если есть сейв
-    }
-
-    /// <summary>
-    /// Полная загрузка сохранённого прогресса (в том числе позиции игрока).
-    /// Вызывается, например, при выборе "Продолжить".
-    /// </summary>
-    public void LoadGame()
-    {
-        Repository.LoadState();
-        foreach (var saveLoader in saveLoaders)
-        {
-            saveLoader.LoadData();
-        }
-    }
-
-    /// <summary>
-    /// Загрузка обязательных данных, без загрузки позиции игрока.
-    /// Если для какого-либо загрузчика нет сохранённых данных, вызывается LoadDefaultData().
-    /// </summary>
-    public void LoadRequiredData()
-    {
-        Repository.LoadState();
-        foreach (var saveLoader in requiredSaveLoaders)
-        {
-            if (!saveLoader.LoadData() || QuestCollection.CurrentDayNumber > 2)
+            // РџРѕР»РЅС‹Р№ РЅР°Р±РѕСЂ Р·Р°РіСЂСѓР·С‡РёРєРѕРІ вЂ“ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РЅР°РїСЂРёРјРµСЂ, РїСЂРё РїСЂРѕРґРѕР»Р¶РµРЅРёРё РёРіСЂС‹.
+            saveLoaders = new ISaveLoader[]
             {
-                saveLoader.LoadDefaultData();
+                new QuestSaveLoader(),
+                new ResourceSaveLoader(),
+                new PlayerSaveLoader(_playerTransform),
+                new CollectionSaveLoader(AssembledPickups.GetAllPickups()),
+            };
+
+            // РќР°Р±РѕСЂ Р·Р°РіСЂСѓР·С‡РёРєРѕРІ, РєРѕС‚РѕСЂС‹Рµ РќР• РґРѕР»Р¶РЅС‹ РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ РїРѕР·РёС†РёСЋ РёРіСЂРѕРєР°.
+            // РЈР±РёСЂР°РµРј PlayerSaveLoader, С‡С‚РѕР±С‹ РїРѕР·РёС†РёСЏ РёРіСЂРѕРєР° РѕСЃС‚Р°РІР°Р»Р°СЃСЊ С‚Р°РєРѕР№, РєР°РєРѕР№ РѕРЅР° РѕРїСЂРµРґРµР»РµРЅР° РЅР° СЃС†РµРЅРµ.
+            requiredSaveLoaders = new ISaveLoader[]
+            {
+                new ResourceSaveLoader(),
+                // new PlayerSaveLoader(_playerTransform), // РЅРµ Р·Р°РіСЂСѓР¶Р°РµРј РїРѕР·РёС†РёСЋ РёРіСЂРѕРєР°
+                new CollectionSaveLoader(AssembledPickups.GetAllPickups()),
+                new InteractableItemSaveLoader(),
+                new QuestSaveLoader(),
+            };
+        }
+
+        private void Start()
+        {
+            // РС‰РµРј РєРЅРѕРїРєСѓ СЃ С‚РµРіРѕРј РёР»Рё РїРѕ СЃСЃС‹Р»РєРµ (СѓРїСЂРѕСЃС‚РёРј РґРѕ FindObject)
+            Button loadBtn = GameObject.Find("Button_LoadGame")
+                                    ?.GetComponent<Button>();
+            if (loadBtn != null)
+                loadBtn.interactable = CanLoad();   // Р°РєС‚РёРІРЅР°, С‚РѕР»СЊРєРѕ РµСЃР»Рё РµСЃС‚СЊ СЃРµР№РІ
+        }
+
+        /// <summary>
+        /// РџРѕР»РЅР°СЏ Р·Р°РіСЂСѓР·РєР° СЃРѕС…СЂР°РЅС‘РЅРЅРѕРіРѕ РїСЂРѕРіСЂРµСЃСЃР° (РІ С‚РѕРј С‡РёСЃР»Рµ РїРѕР·РёС†РёРё РёРіСЂРѕРєР°).
+        /// Р’С‹Р·С‹РІР°РµС‚СЃСЏ, РЅР°РїСЂРёРјРµСЂ, РїСЂРё РІС‹Р±РѕСЂРµ "РџСЂРѕРґРѕР»Р¶РёС‚СЊ".
+        /// </summary>
+        public void LoadGame()
+        {
+            Repository.LoadState();
+            foreach (var saveLoader in saveLoaders)
+            {
+                saveLoader.LoadData();
             }
         }
-    }
 
-    /// <summary>
-    /// Сохранение обязательных данных (например, при смене сцен).
-    /// </summary>
-    public void SaveRequiredData()
-    {
-        if (!StartNewGame)
+        /// <summary>
+        /// Р—Р°РіСЂСѓР·РєР° РѕР±СЏР·Р°С‚РµР»СЊРЅС‹С… РґР°РЅРЅС‹С…, Р±РµР· Р·Р°РіСЂСѓР·РєРё РїРѕР·РёС†РёРё РёРіСЂРѕРєР°.
+        /// Р•СЃР»Рё РґР»СЏ РєР°РєРѕРіРѕ-Р»РёР±Рѕ Р·Р°РіСЂСѓР·С‡РёРєР° РЅРµС‚ СЃРѕС…СЂР°РЅС‘РЅРЅС‹С… РґР°РЅРЅС‹С…, РІС‹Р·С‹РІР°РµС‚СЃСЏ LoadDefaultData().
+        /// </summary>
+        public void LoadRequiredData()
         {
+            Repository.LoadState();
             foreach (var saveLoader in requiredSaveLoaders)
             {
-                if (saveLoader != null)
-                    saveLoader.SaveData();
+                if (!saveLoader.LoadData() || QuestCollection.CurrentDayNumber > 2)
+                {
+                    saveLoader.LoadDefaultData();
+                }
             }
-            Repository.SaveState();
-            StartNewGame = false;
         }
-    }
 
-    /// <summary>
-    /// Полное сохранение игрового прогресса (в том числе позиции игрока).
-    /// Вызывается, например, при сохранении перед выходом или при переходе в меню "Продолжить".
-    /// </summary>
-    public void SaveGame()
-    {
-        foreach (var saveLoader in saveLoaders)
+        /// <summary>
+        /// РЎРѕС…СЂР°РЅРµРЅРёРµ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹С… РґР°РЅРЅС‹С… (РЅР°РїСЂРёРјРµСЂ, РїСЂРё СЃРјРµРЅРµ СЃС†РµРЅ).
+        /// </summary>
+        public void SaveRequiredData()
         {
-            saveLoader.SaveData();
-        }
-        Repository.SetUserProgress(true);
-        Repository.SaveState();
-    }
-
-    /// <summary>
-    /// Проверяет, есть ли сохранённый игровой прогресс.
-    /// </summary>
-    public bool CanLoad()
-    {
-        Repository.LoadState();
-        return Repository.HasAnyData();
-    }
-
-    /// <summary>
-    /// Очищает сохранённые данные и устанавливает флаг новой игры.
-    /// </summary>
-    public void ClearSavs()
-    {
-        QuestCollection.ClearQuests();
-        AssembledPickups.Clear();
-        Repository.ClearSaveData();
-        PlayerSpawnData.ClearData();
-        StartNewGame = true;
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneUnloaded += OnSceneUnloaded;
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SaveRequiredData();
-        SceneManager.sceneUnloaded -= OnSceneUnloaded;
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneUnloaded(Scene scene)
-    {
-        SaveRequiredData();
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        // Если начинается новая игра, позиция игрока сбрасывается в spawnPoint.
-        if (StartNewGame)
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null && spawnPoint != null)
+            if (!StartNewGame)
             {
-                player.transform.position = spawnPoint.position;
-                // Если нужно сбросить и вращение, можно добавить:
-                // player.transform.rotation = spawnPoint.rotation;
+                foreach (var saveLoader in requiredSaveLoaders)
+                {
+                    if (saveLoader != null)
+                        saveLoader.SaveData();
+                }
+                Repository.SaveState();
+                StartNewGame = false;
             }
-            // Затем загружаем обязательные данные (без позиции игрока)
-            LoadRequiredData();
-            StartNewGame = false; // сбросить флаг, чтобы в дальнейшем обычная загрузка продолжала работать
         }
-        else
+
+        /// <summary>
+        /// РџРѕР»РЅРѕРµ СЃРѕС…СЂР°РЅРµРЅРёРµ РёРіСЂРѕРІРѕРіРѕ РїСЂРѕРіСЂРµСЃСЃР° (РІ С‚РѕРј С‡РёСЃР»Рµ РїРѕР·РёС†РёРё РёРіСЂРѕРєР°).
+        /// Р’С‹Р·С‹РІР°РµС‚СЃСЏ, РЅР°РїСЂРёРјРµСЂ, РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё РїРµСЂРµРґ РІС‹С…РѕРґРѕРј РёР»Рё РїСЂРё РїРµСЂРµС…РѕРґРµ РІ РјРµРЅСЋ "РџСЂРѕРґРѕР»Р¶РёС‚СЊ".
+        /// </summary>
+        public void SaveGame()
         {
-            LoadRequiredData();
+            foreach (var saveLoader in saveLoaders)
+            {
+                saveLoader.SaveData();
+            }
+            Repository.SetUserProgress(true);
+            Repository.SaveState();
+        }
+
+        /// <summary>
+        /// РџСЂРѕРІРµСЂСЏРµС‚, РµСЃС‚СЊ Р»Рё СЃРѕС…СЂР°РЅС‘РЅРЅС‹Р№ РёРіСЂРѕРІРѕР№ РїСЂРѕРіСЂРµСЃСЃ.
+        /// </summary>
+        public bool CanLoad()
+        {
+            Repository.LoadState();
+            return Repository.HasAnyData();
+        }
+
+        /// <summary>
+        /// РћС‡РёС‰Р°РµС‚ СЃРѕС…СЂР°РЅС‘РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С„Р»Р°Рі РЅРѕРІРѕР№ РёРіСЂС‹.
+        /// </summary>
+        public void ClearSavs()
+        {
+            QuestCollection.ClearQuests();
+            AssembledPickups.Clear();
+            Repository.ClearSaveData();
+            PlayerSpawnData.ClearData();
+            StartNewGame = true;
+        }
+
+        private void OnEnable()
+        {
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDisable()
+        {
+            SaveRequiredData();
+            SceneManager.sceneUnloaded -= OnSceneUnloaded;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneUnloaded(Scene scene)
+        {
+            SaveRequiredData();
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            // Р•СЃР»Рё РЅР°С‡РёРЅР°РµС‚СЃСЏ РЅРѕРІР°СЏ РёРіСЂР°, РїРѕР·РёС†РёСЏ РёРіСЂРѕРєР° СЃР±СЂР°СЃС‹РІР°РµС‚СЃСЏ РІ spawnPoint.
+            if (StartNewGame)
+            {
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null && spawnPoint != null)
+                {
+                    player.transform.position = spawnPoint.position;
+                    // Р•СЃР»Рё РЅСѓР¶РЅРѕ СЃР±СЂРѕСЃРёС‚СЊ Рё РІСЂР°С‰РµРЅРёРµ, РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ:
+                    // player.transform.rotation = spawnPoint.rotation;
+                }
+                // Р—Р°С‚РµРј Р·Р°РіСЂСѓР¶Р°РµРј РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ (Р±РµР· РїРѕР·РёС†РёРё РёРіСЂРѕРєР°)
+                LoadRequiredData();
+                StartNewGame = false; // СЃР±СЂРѕСЃРёС‚СЊ С„Р»Р°Рі, С‡С‚РѕР±С‹ РІ РґР°Р»СЊРЅРµР№С€РµРј РѕР±С‹С‡РЅР°СЏ Р·Р°РіСЂСѓР·РєР° РїСЂРѕРґРѕР»Р¶Р°Р»Р° СЂР°Р±РѕС‚Р°С‚СЊ
+            }
+            else
+            {
+                LoadRequiredData();
+            }
+        }
+
+        /*-------------------------------------------------*/
+        /*      РљРќРћРџРљРђ В«Р—РђР“Р РЈР—РРўР¬ РР“Р РЈВ»                    */
+        /*-------------------------------------------------*/
+        public void OnLoadGameButton()
+        {
+            // safety-check: РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°С‚СЊ, РµСЃР»Рё СЃРѕС…СЂР°РЅРµРЅРёР№ РЅРµС‚
+            if (!CanLoad()) return;
+
+            StartNewGame = false;                  // С‡С‚РѕР±С‹ РЅРµ РїРµСЂРµР·Р°РїРёСЃР°С‚СЊ РїРѕР·РёС†РёСЋ
+            LoadGame();                             // РїРѕРґРіСЂСѓР·РёР»Рё РґР°РЅРЅС‹Рµ
         }
     }
-
-    /*-------------------------------------------------*/
-    /*      КНОПКА «ЗАГРУЗИТЬ ИГРУ»                    */
-    /*-------------------------------------------------*/
-    public void OnLoadGameButton()
-    {
-        // safety-check: ничего не делать, если сохранений нет
-        if (!CanLoad()) return;
-
-        StartNewGame = false;                  // чтобы не перезаписать позицию
-        LoadGame();                             // подгрузили данные
-    }
-
 }

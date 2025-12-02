@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using UnityEngine;
 
-namespace GameResources
+namespace Game
 {
     public class ResourceSaveLoader : ISaveLoader
     {
@@ -9,10 +9,10 @@ namespace GameResources
         {
             if (Repository.TryGetData("GameResources", out ResourceData data))
             {
-                GameResources.Gold = data.Gold;
-                GameResources.Food = data.Food;
-                GameResources.PeopleSatisfaction = data.PeopleSatisfaction;
-                GameResources.CastleStrength = data.CastleStrength;
+                Resources.Gold = data.Gold;
+                Resources.Food = data.Food;
+                Resources.PeopleSatisfaction = data.PeopleSatisfaction;
+                Resources.CastleStrength = data.CastleStrength;
                 ////Debug.Log("Loaded resources data");
                 return true;
             }
@@ -21,7 +21,7 @@ namespace GameResources
 
         public void LoadDefaultData()
         {
-            TextAsset textAsset = Resources.Load<TextAsset>("SavsInformation/GameResources/DefaultResources");
+            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>("SavsInformation/GameResources/DefaultResources");
             if (textAsset == null)
             {
                 //Debug.LogError("Default resources file not found!");
@@ -38,10 +38,10 @@ namespace GameResources
                 };
 
                 var defaultData = JsonConvert.DeserializeObject<ResourceData>(textAsset.text, settings);
-                GameResources.Gold = defaultData.Gold;
-                GameResources.Food = defaultData.Food;
-                GameResources.PeopleSatisfaction = defaultData.PeopleSatisfaction;
-                GameResources.CastleStrength = defaultData.CastleStrength;    
+                Resources.Gold = defaultData.Gold;
+                Resources.Food = defaultData.Food;
+                Resources.PeopleSatisfaction = defaultData.PeopleSatisfaction;
+                Resources.CastleStrength = defaultData.CastleStrength;    
             }
             catch (JsonException ex)
             {
@@ -53,10 +53,10 @@ namespace GameResources
         {
             var data = new ResourceData
             {
-                Gold = GameResources.Gold,
-                Food = GameResources.Food,
-                PeopleSatisfaction = GameResources.PeopleSatisfaction,
-                CastleStrength = GameResources.CastleStrength
+                Gold = Resources.Gold,
+                Food = Resources.Food,
+                PeopleSatisfaction = Resources.PeopleSatisfaction,
+                CastleStrength = Resources.CastleStrength
             };
             Repository.SetData("GameResources", data);
             ////Debug.Log("Saved resources data");

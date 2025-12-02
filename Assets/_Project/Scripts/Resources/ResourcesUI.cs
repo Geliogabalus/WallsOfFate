@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-namespace GameResources
+namespace Game
 {
     /// <summary>
     /// Displays numerical resources and animates colour/value changes.
@@ -53,10 +53,10 @@ namespace GameResources
 
             if (!dialogueManager.DialogueIsPlaying)
             {
-                GameResources.ChangeGold(gold);
-                GameResources.ChangeFood(food);
-                GameResources.ChangePeopleSatisfaction(peopleSat);
-                GameResources.ChangeCastleStrength(castleStr);
+                Resources.ChangeGold(gold);
+                Resources.ChangeFood(food);
+                Resources.ChangePeopleSatisfaction(peopleSat);
+                Resources.ChangeCastleStrength(castleStr);
 
                 // Сбрасываем Ink‑переменные, чтобы не применять одно и то же изменение дважды.
                 dialogueManager.SetVariableState("Gold", 0);
@@ -72,10 +72,10 @@ namespace GameResources
         #region Updating helpers
         private void UpdateAllResources(bool forceUpdate = false)
         {
-            UpdateResource(ref lastGold, GameResources.Gold, goldText, forceUpdate);
-            UpdateResource(ref lastFood, GameResources.Food, foodText, forceUpdate);
-            UpdateResource(ref lastSatisfaction, GameResources.PeopleSatisfaction, satisfactionText, forceUpdate);
-            UpdateResource(ref lastStrength, GameResources.CastleStrength, strengthText, forceUpdate);
+            UpdateResource(ref lastGold, Resources.Gold, goldText, forceUpdate);
+            UpdateResource(ref lastFood, Resources.Food, foodText, forceUpdate);
+            UpdateResource(ref lastSatisfaction, Resources.PeopleSatisfaction, satisfactionText, forceUpdate);
+            UpdateResource(ref lastStrength, Resources.CastleStrength, strengthText, forceUpdate);
         }
 
         private void UpdateResource(ref int lastValue,

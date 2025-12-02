@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Quest
+namespace Game
 {
-    public class QuestSaveLoader : ISaveLoader
+    public static class QuestSaveLoader
     {
-        public bool LoadData()
+        public static bool LoadData()
         {
-            if (Repository.TryGetData("QuestSchedule", out QuestSaveData saveData))
+            if (Data.Repository.TryGetData("QuestSchedule", out QuestSaveData saveData))
             {
                 QuestCollection.Initialize(saveData);
                 ////Debug.Log($"Loaded quest data for day {saveData.CurrentDay}");

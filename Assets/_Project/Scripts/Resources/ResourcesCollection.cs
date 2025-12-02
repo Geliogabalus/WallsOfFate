@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace GameResources
+namespace Game
 {
-    public static class GameResources
+    public static class Resources
     {
         public static int Gold { get; set; }
         public static int Food { get; set; }

@@ -14,16 +14,16 @@ public class UpdateTextField : MonoBehaviour
     [SerializeField] private List<TextField> textsFields = new List<TextField>();
 
     private void Awake() {
-        GameResources.GameResources.GoldChanged += OnGoldChanged;
-        GameResources.GameResources.FoodChanged += OnFoodChanged;
-        GameResources.GameResources.PeopleSatisfactionChanged += OnPeopleSatisfactionChanged;
-        GameResources.GameResources.CastleStrengthChanged += OnCastleStrengthChanged;
+        Game.Resources.GoldChanged += OnGoldChanged;
+        Game.Resources.FoodChanged += OnFoodChanged;
+        Game.Resources.PeopleSatisfactionChanged += OnPeopleSatisfactionChanged;
+        Game.Resources.CastleStrengthChanged += OnCastleStrengthChanged;
 
         foreach (var textField in textsFields) {
-            if (textField.key == "gold") textField.value.text = GameResources.GameResources.Gold.ToString();
-            else if (textField.key == "food") textField.value.text = GameResources.GameResources.Food.ToString();
-            else if (textField.key == "satisfaction") textField.value.text = GameResources.GameResources.PeopleSatisfaction.ToString();
-            else if (textField.key == "strength") textField.value.text = GameResources.GameResources.CastleStrength.ToString();
+            if (textField.key == "gold") textField.value.text = Game.Resources.Gold.ToString();
+            else if (textField.key == "food") textField.value.text = Game.Resources.Food.ToString();
+            else if (textField.key == "satisfaction") textField.value.text = Game.Resources.PeopleSatisfaction.ToString();
+            else if (textField.key == "strength") textField.value.text = Game.Resources.CastleStrength.ToString();
         }
     }
     private void OnGoldChanged(int newValue) {
