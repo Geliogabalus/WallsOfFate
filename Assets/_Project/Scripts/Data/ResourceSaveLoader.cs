@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using UnityEngine;
 
-namespace Game
+namespace Game.Data
 {
-    public class ResourceSaveLoader : ISaveLoader
+    public static class ResourceSaveLoader
     {
-        public bool LoadData()
+        public static bool LoadData()
         {
             if (Repository.TryGetData("GameResources", out ResourceData data))
             {
@@ -13,18 +14,18 @@ namespace Game
                 Resources.Food = data.Food;
                 Resources.PeopleSatisfaction = data.PeopleSatisfaction;
                 Resources.CastleStrength = data.CastleStrength;
-                ////Debug.Log("Loaded resources data");
+                Debug.Log("Loaded resources data");
                 return true;
             }
             return false;
         }
 
-        public void LoadDefaultData()
+        public static void LoadDefaultData()
         {
-            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>("SavsInformation/GameResources/DefaultResources");
+            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>("Data/DefaultResources");
             if (textAsset == null)
             {
-                //Debug.LogError("Default resources file not found!");
+                Debug.LogError("Default resources file not found!");
                 return;
             }
 
@@ -45,11 +46,11 @@ namespace Game
             }
             catch (JsonException ex)
             {
-                //Debug.LogError($"JSON error: {ex.Message}");
+                Debug.LogError($"JSON error: {ex.Message}");
             }
         }
 
-        public void SaveData()
+        public static void SaveData()
         {
             var data = new ResourceData
             {
@@ -59,11 +60,11 @@ namespace Game
                 CastleStrength = Resources.CastleStrength
             };
             Repository.SetData("GameResources", data);
-            ////Debug.Log("Saved resources data");
+            Debug.Log("Saved resources data");
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     public class ResourceData
     {
         public int Gold;

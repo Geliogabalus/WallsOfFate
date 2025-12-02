@@ -28,8 +28,6 @@ namespace Game
         public static void ChangePeopleSatisfaction(int delta) {
             PeopleSatisfaction = Math.Max(PeopleSatisfaction + delta, 0);
             PeopleSatisfactionChanged?.Invoke(PeopleSatisfaction);
-
-
         }
 
         public static void ChangeCastleStrength(int delta) { 

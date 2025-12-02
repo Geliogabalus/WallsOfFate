@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Quest;
 
 namespace Game.UI
 {
@@ -22,15 +21,9 @@ namespace Game.UI
 
         public static event System.Action NewGameStarted;
 
-        private SaveLoadManager _saveLoadManager;
-
-        SaveLoadManager SaveLoadManager => _saveLoadManager;
-
         private void Awake()
         {
-            _saveLoadManager = GetComponent<SaveLoadManager>();
-
-            if (SaveLoadManager.CanLoad())
+            if (Data.SaveLoadManager.CanLoad())
             {
                 continueGameButton.SetActive(true);
             }
@@ -69,14 +62,7 @@ namespace Game.UI
 
         public void StartGame()
         {
-            SaveLoadManager.ClearSavs();
-            QuestCollection.ClearQuests();
-
-            // Initialize starting resources            
-            Resources.Gold = 50;
-            Resources.Food = 50;
-            Resources.PeopleSatisfaction = 6;
-            Resources.CastleStrength = 200;
+            Data.SaveLoadManager.Clear();
 
             NewGameStarted?.Invoke();
 
