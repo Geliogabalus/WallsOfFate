@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 
 namespace Game.UI
 {
-    [RequireComponent(typeof(SaveLoadManager))]
     public class MainMenuController : MonoBehaviour
     {
         [Header("Buttons")]
@@ -35,7 +34,7 @@ namespace Game.UI
 
         public void OnStartGameButtonClick()
         {
-            if (SaveLoadManager.CanLoad())
+            if (Data.SaveLoadManager.CanLoad())
             {
                 newGameConfirmationPanel.SetActive(true);
             }
@@ -47,7 +46,7 @@ namespace Game.UI
 
         public void OnContinueGameButtonClick()
         {
-            SaveLoadManager.LoadGame();
+            Data.SaveLoadManager.LoadGame();
         }
 
         public void OnSettingsButtonClick()

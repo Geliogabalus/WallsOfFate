@@ -10,10 +10,10 @@ namespace Game.Data
         {
             if (Repository.TryGetData("GameResources", out ResourceData data))
             {
-                Resources.Gold = data.Gold;
-                Resources.Food = data.Food;
-                Resources.PeopleSatisfaction = data.PeopleSatisfaction;
-                Resources.CastleStrength = data.CastleStrength;
+                Player.Resources.Gold = data.Gold;
+                Player.Resources.Food = data.Food;
+                Player.Resources.PeopleSatisfaction = data.PeopleSatisfaction;
+                Player.Resources.CastleStrength = data.CastleStrength;
                 Debug.Log("Loaded resources data");
                 return true;
             }
@@ -22,7 +22,7 @@ namespace Game.Data
 
         public static void LoadDefaultData()
         {
-            TextAsset textAsset = UnityEngine.Resources.Load<TextAsset>("Data/DefaultResources");
+            TextAsset textAsset = Resources.Load<TextAsset>("Data/DefaultResources");
             if (textAsset == null)
             {
                 Debug.LogError("Default resources file not found!");
@@ -39,10 +39,10 @@ namespace Game.Data
                 };
 
                 var defaultData = JsonConvert.DeserializeObject<ResourceData>(textAsset.text, settings);
-                Resources.Gold = defaultData.Gold;
-                Resources.Food = defaultData.Food;
-                Resources.PeopleSatisfaction = defaultData.PeopleSatisfaction;
-                Resources.CastleStrength = defaultData.CastleStrength;    
+                Player.Resources.Gold = defaultData.Gold;
+                Player.Resources.Food = defaultData.Food;
+                Player.Resources.PeopleSatisfaction = defaultData.PeopleSatisfaction;
+                Player.Resources.CastleStrength = defaultData.CastleStrength;    
             }
             catch (JsonException ex)
             {
@@ -54,10 +54,10 @@ namespace Game.Data
         {
             var data = new ResourceData
             {
-                Gold = Resources.Gold,
-                Food = Resources.Food,
-                PeopleSatisfaction = Resources.PeopleSatisfaction,
-                CastleStrength = Resources.CastleStrength
+                Gold = Player.Resources.Gold,
+                Food = Player.Resources.Food,
+                PeopleSatisfaction = Player.Resources.PeopleSatisfaction,
+                CastleStrength = Player.Resources.CastleStrength
             };
             Repository.SetData("GameResources", data);
             Debug.Log("Saved resources data");

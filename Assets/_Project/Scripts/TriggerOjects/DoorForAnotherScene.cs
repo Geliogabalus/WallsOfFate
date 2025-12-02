@@ -1,10 +1,9 @@
-﻿using Quest;
-using System;
+﻿using System;
 using UnityEngine;
 
-namespace Assets.Scripts.TriggerOjects
+namespace Game
 {
-    internal class DoorForEnotherScene : MonoBehaviour, ITriggerable
+    internal class DoorForAnotherScene : MonoBehaviour, ITriggerable
     {
         [SerializeField] string SceneName;
         [SerializeField] private Vector3 SpawnPosition; // Точка спавна в новой сцене
@@ -32,7 +31,7 @@ namespace Assets.Scripts.TriggerOjects
         public bool ShouldTrigger() {
             
             if (dayNumber == -1) return true;
-            else if (dayNumber != -1 && dayNumber == QuestCollection.CurrentDayNumber) return true;
+            else if (dayNumber != -1 && dayNumber == Quest.QuestCollection.CurrentDayNumber) return true;
             else return false;
         }
     }

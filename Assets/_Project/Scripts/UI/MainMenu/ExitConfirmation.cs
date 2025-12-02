@@ -3,53 +3,58 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class ExitConfirmation : MonoBehaviour
+namespace Game
 {
-    [SerializeField] private GameObject exitPanel;
-    [SerializeField] private Button confirmButton;  // кнопка подтверждения выхода
 
-
-    private void Start()
+    public class ExitConfirmation : MonoBehaviour
     {
-        exitPanel.SetActive(false);
-    }
+        [SerializeField] private GameObject exitPanel;
+        [SerializeField] private Button confirmButton;  // кнопка подтверждения выхода
 
-    private void Update()
-    {
-        // закрываем панель по Esc, если она уже открыта
-        if (exitPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+
+        private void Start()
         {
-            HideExitPanel();
+            exitPanel.SetActive(false);
+        }
+
+        private void Update()
+        {
+            // закрываем панель по Esc, если она уже открыта
+            if (exitPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+            {
+                HideExitPanel();
+            }
+        }
+
+        public void ShowExitPanel()
+        {
+            exitPanel.SetActive(true);
+
+            // Убираем текущее выделение, затем выбираем кнопку «Подтвердить»
+            EventSystem.current.SetSelectedGameObject(null);
+            confirmButton.Select();
+
+            if (ButtonsController.Instance != null)
+                ButtonsController.Instance.BlockInputFor(1f);
+        }
+
+        public void HideExitPanel()
+        {
+            exitPanel.SetActive(false);
+
+            // сброс фокуса, чтобы при закрытии панели ничего не осталось выделенным
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+
+        public void QuitToMenuGame()
+        {
+            LoadingScreenManager.Instance.LoadScene("MainMenu");
+        }
+
+        public void QuitGame()
+        {
+            Application.Quit();
         }
     }
 
-    public void ShowExitPanel()
-    {
-        exitPanel.SetActive(true);
-
-        // Убираем текущее выделение, затем выбираем кнопку «Подтвердить»
-        EventSystem.current.SetSelectedGameObject(null);
-        confirmButton.Select();
-
-        if (ButtonsController.Instance != null)
-            ButtonsController.Instance.BlockInputFor(1f);
-    }
-
-    public void HideExitPanel()
-    {
-        exitPanel.SetActive(false);
-
-        // сброс фокуса, чтобы при закрытии панели ничего не осталось выделенным
-        EventSystem.current.SetSelectedGameObject(null);
-    }
-
-    public void QuitToMenuGame()
-    {
-        LoadingScreenManager.Instance.LoadScene("MainMenu");
-    }
-
-    public void QuitGame()
-    {
-        Application.Quit();
-    }
 }

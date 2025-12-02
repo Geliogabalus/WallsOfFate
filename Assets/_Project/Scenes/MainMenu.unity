@@ -3823,7 +3823,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 780228222}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ExitConfirmation, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
@@ -4982,8 +4982,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 780228223}
-  - component: {fileID: 780228222}
-  - component: {fileID: 780228225}
+  - component: {fileID: 780228224}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -4991,20 +4990,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &780228222
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 780228220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eaaecb713c350a94f8c30e5388fb9310, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  exitPanel: {fileID: 59119506}
-  confirmButton: {fileID: 600446117}
 --- !u!4 &780228223
 Transform:
   m_ObjectHideFlags: 0
@@ -5020,7 +5005,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &780228225
+--- !u!114 &780228224
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5029,10 +5014,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 780228220}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acea23204385b5b4ab9a8e045380d6d7, type: 3}
+  m_Script: {fileID: 11500000, guid: ef0b75769b3335e41bc9354242ea2889, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  settingsPanel: {fileID: 2001908982}
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.MainMenuController
+  startGameButton: {fileID: 0}
+  continueGameButton: {fileID: 0}
+  settingsButton: {fileID: 0}
+  exitGameButton: {fileID: 0}
+  newGameConfirmationPanel: {fileID: 0}
+  exitConfirmationPanel: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  firstScene: 
 --- !u!1 &797224717
 GameObject:
   m_ObjectHideFlags: 0
@@ -5117,7 +5109,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 780228222}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ExitConfirmation, Assembly-CSharp
         m_MethodName: ShowExitPanel
         m_Mode: 1
@@ -5691,7 +5683,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 780228225}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingsPanel, Assembly-CSharp
         m_MethodName: HideSettingsPanel
         m_Mode: 1
@@ -10486,7 +10478,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 780228222}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ExitConfirmation, Assembly-CSharp
         m_MethodName: HideExitPanel
         m_Mode: 1
@@ -13335,7 +13327,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 780228225}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingsPanel, Assembly-CSharp
         m_MethodName: ShowSettingsPanel
         m_Mode: 1

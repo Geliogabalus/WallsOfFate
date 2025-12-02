@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Game
+namespace Game.Player
 {
     public static class Resources
     {

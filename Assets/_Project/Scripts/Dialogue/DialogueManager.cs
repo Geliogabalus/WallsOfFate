@@ -7,7 +7,7 @@ using System;
 using UnityEngine.EventSystems;
 using System.IO;
 using System.Linq;
-using Quest;
+using Game.Quest;
 using UnityEngine.UI;
 
 public class DialogueManager : MonoBehaviour
@@ -197,7 +197,7 @@ public class DialogueManager : MonoBehaviour
 //        if (!Directory.Exists(fullPath)) { Debug.LogError($"Папка не существует: {fullPath}"); return; }
 //            string[] files = Directory.GetFiles(fullPath, "*.json");
 //#endif
-            TextAsset[] allDialogue = Resources.LoadAll<TextAsset>($"Dialogue/{dialogueFileName}");
+            TextAsset[] allDialogue = UnityEngine.Resources.LoadAll<TextAsset>($"Dialogue/{dialogueFileName}");
         TextAsset inkJSON = allDialogue[allDialogue.Length - 1];
 
         _currentStory = new Story(inkJSON.text);
