@@ -77,9 +77,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 55ab9102da502a04e8f60b26130daa62, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4313773999434190149}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 55ab9102da502a04e8f60b26130daa62, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8264311424622728652}
   m_SourcePrefab: {fileID: 100100000, guid: 55ab9102da502a04e8f60b26130daa62, type: 3}
 --- !u!1 &3818054602140482911 stripped
 GameObject:
@@ -406,18 +403,3 @@ MonoBehaviour:
     PeopleSatisfaction: 1
     CastleStrength: 1
   Portrait: Characters/Portraits/mannorm
---- !u!114 &8264311424622728652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3818054602140482911}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76990b6dd65c3114e9dd6837c3d7c569, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.DialogueTrigger
-  _defaultDialogue: Default
-  _npcName: TestNPC
-  PowerCheckPrefab: {fileID: 0}

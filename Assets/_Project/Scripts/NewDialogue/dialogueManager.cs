@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-using static Game.EntryPoint;
+
 namespace Game
 {
 
@@ -155,13 +155,13 @@ namespace Game
 
         public void StartDialogue(DialogueGraph currentDialogue)
         {
-            if (!IsInDialogue && currentDialogue != null)
+             if (!IsInDialogue && currentDialogue != null)
             {
                 _currentDialogue = currentDialogue;
 
                 ClearSpawnedPanels();
                 if (resourcesUI != null) {
-                    resourcesUI.gameObject.SetActive(false);
+                    resourcesUI.SetActive(false);
                 }
 
                 IsInDialogue = true;
@@ -169,7 +169,7 @@ namespace Game
 
                 if (DialogueUI != null)
                 {
-                    Sprite mySprite = Resources.Load<Sprite>(_currentDialogue.Portrait);
+                    Sprite mySprite = Resources.Load<Sprite>("Characters/Portraits/" + _currentDialogue.Portrait);
                     NPCPortrait.sprite = mySprite;
 
                     DialogueUI.SetActive(true);

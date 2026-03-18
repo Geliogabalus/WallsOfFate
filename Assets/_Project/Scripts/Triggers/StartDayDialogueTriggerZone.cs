@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace Assets._Project.Scripts.Triggers
+namespace Game
 {
     [RequireComponent(typeof(BoxCollider))]
     internal class StartDayDialogueTriggerZone : MonoBehaviour
@@ -53,8 +53,8 @@ namespace Assets._Project.Scripts.Triggers
         private void InvokeEvent(Collider obj)
         {
             bool interacted = InputManager.GetInstance().GetInteractPressed();
-            TriggerEvent iventData = new TriggerEvent(AreaType, null, obj.gameObject, interacted, Parameters);
-            OnEventTriggered?.Invoke(iventData);
+            TriggerEvent eventData = new TriggerEvent(AreaType, null, obj.gameObject, interacted, Parameters);
+            OnEventTriggered?.Invoke(eventData);
         }
     }
 }

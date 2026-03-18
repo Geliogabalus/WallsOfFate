@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game
 {
-
-    [System.Serializable]
-    public class DialogueGraph : MonoBehaviour
+    [Serializable]
+    public class DialogueGraph : ScriptableObject
     {
         [SerializeField]
         private string DialogueName;
@@ -22,20 +22,20 @@ namespace Game
             return DialogueName;
         }
 
-        [System.Serializable]
+        [Serializable]
         public class Node
         {
             #region GraphVariables 
             public int id;
-            public bool IsMainCharacter;
+            public bool IsMainCharacter = false;
             public string CharName;
             public string Text;
-            public int NextNodeID;
-            public bool isOption;
+            public int NextNodeID = -1;
+            public bool isOption = false;
             #endregion
 
             #region GameVariables
-            public bool StartMinigame;
+            public bool StartMinigame = false;
             public MiniGame.MiniGameType MiniGameType = MiniGame.MiniGameType.None;
             public string MiniGameSceneName = "";
 
@@ -68,10 +68,10 @@ namespace Game
             }
 
             #region Resources
-            public int Gold;
-            public int Food;
-            public int PeopleSatisfaction;
-            public int CastleStrength;
+            public int Gold = 0;
+            public int Food = 0;
+            public int PeopleSatisfaction = 0;
+            public int CastleStrength = 0;
             #endregion
 
             #endregion
