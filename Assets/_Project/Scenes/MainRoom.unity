@@ -27232,7 +27232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NPC:
-  - {fileID: 7280076937197616263, guid: 54e755c1c8c57924b9322646fe254e2b, type: 3}
+  - {fileID: 7280076937197616263, guid: ed98974ca8b9a07468bfed5a2b625048, type: 3}
   Parent: {fileID: 57442895}
   StartPoints:
   - {fileID: 583014667}
@@ -27249,7 +27249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartPoint: {fileID: 1890123944}
-  Prefab: {fileID: 1025207163794879203, guid: 96e2899ba76152b4f9ee45c2b53e1ddb, type: 3}
+  Prefab: {fileID: 1025207163794879203, guid: 712f4b04354ac9640a0ff923eb8050da, type: 3}
   Parent: {fileID: 2859251394975671733}
   CameraTransform: {fileID: 4053043660626195217}
 --- !u!114 &300978962
