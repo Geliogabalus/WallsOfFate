@@ -1,10 +1,9 @@
-﻿using NUnit.Framework.Interfaces;
+﻿using Newtonsoft.Json;
+using NUnit.Framework.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zenject;
-using static DialogueDatabase;
-
 namespace Game
 {
     internal class DialogueHandler : MonoBehaviour, ITriggerHandler
@@ -102,16 +101,28 @@ namespace Game
             }
         }
 
-        private DialogueGraph GetDialogueGraph(string name)
-        {
-            return this.GetComponents<DialogueGraph>().Where(t => t.GetName() == name).FirstOrDefault();
-        }
-
         private DialogueGraph GetDialogueGraph(GameObject obj)
         {
-            return obj.GetComponent<DialogueGraph>(); //.Where(t => t.GetName() == obj).FirstOrDefault();
-        }
+            string dialoguePath = "Dialogues/NPC/" + obj.name.ToLower();
 
+            TextAsset textAsset = Resources.Load<TextAsset>(dialoguePath);
+            if (textAsset == null)
+            {
+                Debug.LogError($"StartDayDialogueHandler: Failed to load dialogue graph at path: {dialoguePath}");
+                return null;
+            }
+
+            try
+            {
+                var dialogueGraph = JsonConvert.DeserializeObject<DialogueGraph>(textAsset.text);
+                return dialogueGraph;
+            }
+            catch (JsonException ex)
+            {
+                Debug.LogError($"StartDayDialogueHandler: Failed to load dialogue graph at path: {dialoguePath}");
+                return null;
+            }
+        }
     }
 }
 
