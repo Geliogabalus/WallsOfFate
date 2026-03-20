@@ -24,6 +24,7 @@ namespace Game
         #region MainInfo
         private DialogueGraph currentDialogue;
         private Sentence currentSentence;
+        private List<Sentence> currentOptions = new();
         #endregion
 
         #region Utility
@@ -140,15 +141,18 @@ namespace Game
             }
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            /*if (IsInDialogue && DialogueUI != null && DialogueUI.activeSelf)
+            if (currentOptions.Count > 0)
             {
-                if (Input.GetKeyDown(KeyCode.E))
+                for (int i = 0; i < currentOptions.Count; i++)
                 {
-                    DisplayCurrentSentence();
+                    if (Input.GetKeyDown(Enum.Parse<KeyCode>((49 + i).ToString())))
+                    {
+                        SelectOption(i);
+                    }
                 }
-            }*/
+            }
         }
 
         public void StartDialogue(DialogueGraph currentDialogue)
@@ -211,9 +215,9 @@ namespace Game
             return false;
         }
 
-        public void OnOptionClick(int SentenceId)
+        public void SelectOption(int optionIndex)
         {           
-            var optionSentence = currentDialogue.Sentences.Find(s => s.Id == SentenceId);
+            var optionSentence = currentOptions[optionIndex];
 
             currentSentence = optionSentence;
             DisplayCurrentSentence(); 
@@ -277,16 +281,18 @@ namespace Game
                 Destroy(child.gameObject);
             }
 
+            currentOptions.Clear();
             var optionCounter = 1;
 
             while (currentSentence.IsOption)
             {
+                currentOptions.Add(currentSentence);
                 var optionObject = Instantiate(optionPrefab);
                 optionObject.transform.SetParent(OptionsList.transform, false);
 
                 Button optionButton = optionObject.GetComponent<Button>();
-                var currentSentenceId = currentSentence.Id;
-                optionButton.onClick.AddListener(() => OnOptionClick(currentSentenceId));
+                var capturedIndex = optionCounter - 1;
+                optionButton.onClick.AddListener(() => SelectOption(capturedIndex));
 
                 TMP_Text optionTextComponent = optionObject.transform.GetComponent<TMP_Text>();
                 optionTextComponent.text = optionCounter + ". " + currentSentence.Text;
@@ -303,7 +309,7 @@ namespace Game
                 Destroy(child.gameObject);
             }
 
-            StartCoroutine(CloseDialogueWithDelay(5f));
+            StartCoroutine(CloseDialogueWithDelay(2f));
         }
 
         private IEnumerator CloseDialogueWithDelay(float delay)
