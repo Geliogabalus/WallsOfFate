@@ -1,11 +1,13 @@
-﻿using Game.Data;
+﻿using Game.Core; // Добавьте этот using для AsyncEvent
+using Game.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
+using System.Threading.Tasks;
 
 namespace Game
 {
-    internal class BoxGrabberHandler : MonoBehaviour, ITriggerHandler
+    internal class BoxGrabberHandler : MonoBehaviour
     {
         [SerializeField] private List<InfluenceArea> influenceArias;
 
@@ -15,16 +17,16 @@ namespace Game
         private void OnEnable()
         {
             foreach (var area in influenceArias)
-                area.OnEventTriggered += Handle;
+                area.OnEventTriggered.Subscribe(HandleAsync); 
         }
 
         private void OnDisable()
         {
             foreach (var area in influenceArias)
-                area.OnEventTriggered -= Handle;
+                area.OnEventTriggered.Unsubscribe(HandleAsync); 
         }
 
-        public void Handle(TriggerEvent eventData)
+        public async Task HandleAsync(TriggerEvent eventData)
         {
             if (eventData.AreaType != InfluenceType.Object || !eventData.IsEnteracted)
                 return;
@@ -34,20 +36,26 @@ namespace Game
             if (!box.CompareTag("Box"))
                 return;
 
-            ToggleGrab(box);
+            ToggleGrab(eventData);
+
+            await Task.CompletedTask; 
         }
 
-        private void ToggleGrab(GameObject box)
+        private void ToggleGrab(TriggerEvent eventData)
         {
+            GameObject box = eventData.TriggerObj;
+            PlayerAnimatinController playerAnimator = eventData.PlayerObj.GetComponent<PlayerAnimatinController>();
             if (currentBox == box)
             {
                 DetachBox();
+                playerAnimator?.InteractWith(eventData, false);
             }
             else
             {
                 if (currentBox != null)
                     DetachBox();
 
+                playerAnimator?.InteractWith(eventData, true);
                 AttachBox(box);
             }
         }

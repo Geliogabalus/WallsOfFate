@@ -24,7 +24,6 @@ namespace Game
         [SerializeField, TextArea(3, 5)] private string _parametersJson = "{}";
 
         private Dictionary<string, object> _cachedParams;
-
         public Dictionary<string, object> MinigameParams
         {
             get

@@ -32,6 +32,9 @@ namespace Game
         [SerializeField] private float runningPitch = 1.5f;
         [SerializeField] private DialogueManager _dialogueManager;
 
+        private Vector3 grabDirection;
+        private bool isBoxGrabMode = false;
+
         private bool isHoldMove;
         private bool isClickRun;
         private float lastClickTime = -1f;
@@ -58,7 +61,7 @@ namespace Game
         private Vector3 lastPosition;
         private bool isLeftFoot = true;
 
-        private InteractManager interactManager;   // ссылка на менеджер взаимодействия
+        private PlayerAnimatinController interactManager;   // ссылка на менеджер взаимодействия
 
         // --------------------------------------------------
         [Inject] private void Construct(Transform camTransform) => cameraTransform = camTransform;
@@ -66,7 +69,7 @@ namespace Game
         private void Awake()
         {
             _dialogueManager = DialogueManager.Instance;
-            interactManager = GetComponent<InteractManager>();
+            interactManager = GetComponent<PlayerAnimatinController>();
             //if (!interactManager) Debug.LogError("PlayerMoveController: InteractManager missing!");
         }
 
@@ -103,9 +106,20 @@ namespace Game
             UpdateFootstepSounds(SceneManager.GetActiveScene().name);
         }
 
+        public void InBoxGrabMode(Vector3 axis)
+        {
+            isBoxGrabMode = true;
+            grabDirection = axis.normalized;
+        }
+
+        public void StopBoxGrabMode()
+        {
+            isBoxGrabMode = false;
+        }
+
         private void OnDestroy() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-        private void Update()
+        private void FixedUpdate()
         {
             HandleMouseInput();
             HandleMovement();
@@ -135,42 +149,42 @@ namespace Game
                 float held = Time.time - mouseDownTime;
                 dynamicTarget = null;                     // сброс преследования
 
-                if (held < holdThreshold) ProcessClick();
+                //if (held < holdThreshold) ProcessClick();
                 isHoldMove = false;
             }
         }
 
-        private void ProcessClick()
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            var hits = Physics.RaycastAll(ray, 100f);
-            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+        //private void ProcessClick()
+        //{
+        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //    var hits = Physics.RaycastAll(ray, 100f);
+        //    Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
-            foreach (var hit in hits)
-            {
-                // 1) Любой объект, реализующий ITriggerable
-                if (hit.collider.TryGetComponent<ITriggerable>(out var trigger) && interactManager)
-                {
-                    // если уже активирован и не повторяется — пропускаем
-                    if (interactManager.HasTriggerBeenActivated(trigger) && trigger is not Box)
-                        continue;
+        //    foreach (var hit in hits)
+        //    {
+        //        // 1) Любой объект, реализующий ITriggerable
+        //        if (hit.collider.TryGetComponent<ITriggerable>(out var trigger) && interactManager)
+        //        {
+        //            // если уже активирован и не повторяется — пропускаем
+        //            if (interactManager.HasTriggerBeenActivated(trigger) && trigger is not Box)
+        //                continue;
 
-                    float stopDist = 1.2f;
-                    if (hit.collider.TryGetComponent<NavMeshAgent>(out _))
-                        MoveToAndCallback(hit.collider.transform, isClickRun, () => interactManager.InteractWith(trigger), stopDist);
-                    else
-                        MoveToAndCallback(hit.point, isClickRun, () => interactManager.InteractWith(trigger), stopDist);
-                    return;
-                }
-                // 2) Плоскость земли
-                if (((1 << hit.collider.gameObject.layer) & groundMask) != 0)
-                {
-                    if (agent.CalculatePath(hit.point, navMeshPath) && navMeshPath.status == NavMeshPathStatus.PathComplete)
-                        MoveToAndCallback(hit.point, isClickRun, null);
-                    return;
-                }
-            }
-        }
+        //            float stopDist = 1.2f;
+        //            if (hit.collider.TryGetComponent<NavMeshAgent>(out _))
+        //                MoveToAndCallback(hit.collider.transform, isClickRun, () => interactManager.InteractWith(trigger), stopDist);
+        //            else
+        //                MoveToAndCallback(hit.point, isClickRun, () => interactManager.InteractWith(trigger), stopDist);
+        //            return;
+        //        }
+        //        // 2) Плоскость земли
+        //        if (((1 << hit.collider.gameObject.layer) & groundMask) != 0)
+        //        {
+        //            if (agent.CalculatePath(hit.point, navMeshPath) && navMeshPath.status == NavMeshPathStatus.PathComplete)
+        //                MoveToAndCallback(hit.point, isClickRun, null);
+        //            return;
+        //        }
+        //    }
+        //}
         #endregion
 
         // ==================================================
@@ -239,12 +253,41 @@ namespace Game
             {
                 Vector3 f = cameraTransform.forward; f.y = 0; f.Normalize();
                 Vector3 r = cameraTransform.right; r.y = 0; r.Normalize();
-                desired = (f * v + r * h).normalized;
+                if (isBoxGrabMode)
+                {
+                    Vector3 moveInput = (f * v + r * h).normalized;
+                    if (moveInput.sqrMagnitude < 0.01f)
+                    {
+                        desired = Vector3.zero;
+                    }
+                    else
+                    {
+                        // Проверяем, насколько ввод близок к оси grabAxis или противоположной
+                        float angle = Vector3.Angle(moveInput, grabDirection);
+                        float oppositeAngle = Vector3.Angle(moveInput, -grabDirection);
+                        float minAngle = Mathf.Min(angle, oppositeAngle);
+
+                        if (minAngle < 10f) // порог 10 градусов
+                        {
+                            // Определяем направление (вперёд или назад)
+                            float sign = (angle < oppositeAngle) ? 1f : -1f;
+                            desired = grabDirection * sign * moveInput.magnitude;
+                        }
+                        else
+                        {
+                            desired = Vector3.zero;
+                        }
+                    }
+                }
+                else
+                {
+                    desired = (f * v + r * h).normalized;
+                }
             }
 
             // Поворот
             if (desired != Vector3.zero)
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desired), rotationSpeed * Time.deltaTime);
+                if (!isBoxGrabMode) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(desired), rotationSpeed * Time.deltaTime);
 
             // Скорость + гравитация
             bool running = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) || isClickRun;

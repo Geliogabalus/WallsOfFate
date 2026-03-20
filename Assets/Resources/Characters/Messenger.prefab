@@ -2944,6 +2944,7 @@ GameObject:
   - component: {fileID: 6363093388602836429}
   - component: {fileID: 2702150124994498829}
   - component: {fileID: 923595275632324754}
+  - component: {fileID: 3623712443821586599}
   m_Layer: 0
   m_Name: Trigger
   m_TagString: QuestForStorage
@@ -3007,10 +3008,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 246c04dfc0ad72d4d947b4c8da3b71df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  outlineMethod: 0
+  outlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  outlineWidth: 2
   hoverCheckDistance: 100
   hoverLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  targetObject: {fileID: 0}
+  highlightOnHover: 1
+  highlightOnTrigger: 1
+--- !u!114 &3623712443821586599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3984509599709935995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 132812897c9b4934c99bfc712833e60f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.InfluenceArea
+  AreaType: 1
+  InteractionType: 0
+  triggerObject: {fileID: 7280076937197616263}
+  Parameters: 
 --- !u!1 &4044241201480333291
 GameObject:
   m_ObjectHideFlags: 0
@@ -5373,6 +5396,7 @@ GameObject:
   - component: {fileID: 8856146272783591639}
   - component: {fileID: 5484098227992672439}
   - component: {fileID: 6882138215155267680}
+  - component: {fileID: 2892000261243998404}
   m_Layer: 0
   m_Name: Messenger
   m_TagString: Untagged
@@ -5444,6 +5468,49 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &2892000261243998404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7280076937197616263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e5a0ef563608e7409ccc00b81b02432, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.DialogueGraph
+  DialogueName: Default
+  sentences:
+  - id: 0
+    IsMainCharacter: 0
+    CharName: 
+    Text: 
+    NextNodeID: 0
+    isOption: 0
+    StartMinigame: 0
+    MiniGameType: 0
+    MiniGameSceneName: 
+    _parametersJson: 
+    Gold: 0
+    Food: 0
+    PeopleSatisfaction: 0
+    CastleStrength: 0
+  - id: 0
+    IsMainCharacter: 0
+    CharName: 
+    Text: 
+    NextNodeID: 0
+    isOption: 0
+    StartMinigame: 0
+    MiniGameType: 0
+    MiniGameSceneName: 
+    _parametersJson: 
+    Gold: 0
+    Food: 0
+    PeopleSatisfaction: 0
+    CastleStrength: 0
+  Portrait: Characters/Portraits/Messenger
 --- !u!1 &7363507171811652826
 GameObject:
   m_ObjectHideFlags: 0
