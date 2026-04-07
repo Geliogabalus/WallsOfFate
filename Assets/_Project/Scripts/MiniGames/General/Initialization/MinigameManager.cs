@@ -36,7 +36,7 @@ namespace Game.MiniGame
         private Transform playerTransform;
         private Vector3 previousPosition;
         private Quaternion previousRotation;
-        private DialogueGraph dialogueGraph;
+        private DialogGraph dialogueGraph;
 
         void Awake()
         {
@@ -71,7 +71,7 @@ namespace Game.MiniGame
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
-        public void StartMinigame(MiniGameData gameData, DialogueGraph dialogueGraph)
+        public void StartMinigame(MiniGameData gameData, DialogGraph dialogueGraph)
         {
             if (gameData == null)
             {
@@ -212,10 +212,6 @@ namespace Game.MiniGame
 
         private void ResolveDependencies()
         {
-            playerManager ??= PlayerManager.Instance;
-            loadingManager ??= LoadingManager.Instance;
-            questManager ??= QuestManager.Instance;
-
             if (playerTransform == null)
             {
                 PlayerMoveController playerController = FindObjectOfType<PlayerMoveController>();
