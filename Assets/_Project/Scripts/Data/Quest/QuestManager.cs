@@ -9,7 +9,6 @@ namespace Game.Data
 {
     public class QuestManager
     {
-        public static QuestManager Instance { get; private set; }
         public event Action<bool> AllQuestsCompletedStateChanged;
 
         private sealed class MinigameContext
@@ -35,7 +34,6 @@ namespace Game.Data
 
         public QuestManager()
         {
-            Instance = this;
             LoadResourcesData();
             InitializeQuestsStatus();
             RefreshAllQuestsCompletedState();
