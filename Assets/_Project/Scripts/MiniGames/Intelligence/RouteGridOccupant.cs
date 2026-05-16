@@ -26,6 +26,10 @@ namespace Game
         [SerializeField] private Color forbiddenColor = new(0.8f, 0.2f, 0.2f, 1f);
         [SerializeField] private Color timedBarrierBlockedColor = new(0.82f, 0.22f, 0.22f, 1f);
         [SerializeField] private Color timedBarrierPassableColor = new(0.48f, 0.12f, 0.12f, 1f);
+        [SerializeField] private Color previewArgumentColor = new(0.38f, 0.92f, 0.52f, 1f);
+
+        [Header("Argument Rules")]
+        [SerializeField, Min(0)] private int argumentSequenceOrder;
 
         [Header("Timed Barrier")]
         [SerializeField] private bool timedBarrierStartsPassable;
@@ -39,12 +43,16 @@ namespace Game
         private Vector3 _timedBarrierLoweredPosition;
         private Coroutine _timedBarrierRoutine;
         private bool _timedBarrierPositionsInitialized;
+        private bool _previewHighlighted;
+        private MaterialPropertyBlock _propertyBlock;
 
         public bool BlocksMovement => CellType == RouteCellType.Wall ||
                                       (CellType == RouteCellType.TimedBarrier && !_timedBarrierIsPassable);
         public bool IsForbidden => CellType == RouteCellType.Forbidden;
         public bool IsExit => CellType == RouteCellType.Exit;
         public bool HasAvailableArgument => CellType == RouteCellType.Argument && !_consumed;
+        public bool IsArgumentOccupant => CellType == RouteCellType.Argument;
+        public int ArgumentSequenceOrder => Mathf.Max(0, argumentSequenceOrder);
 
         public void SyncGridPosition(GridManager fallbackGrid = null)
         {
@@ -56,7 +64,7 @@ namespace Game
             GridManager targetGrid = grid != null ? grid : fallbackGrid;
             if (targetGrid == null)
             {
-                targetGrid = FindObjectOfType<GridManager>(true);
+                targetGrid = FindAnyObjectByType<GridManager>(FindObjectsInactive.Include);
             }
 
             if (targetGrid != null && targetGrid.TryGetGridPositionFromWorld(transform.position, out Vector2Int resolvedPosition))
@@ -68,6 +76,7 @@ namespace Game
         public void ResetState()
         {
             _consumed = false;
+            _previewHighlighted = false;
 
             if (visualRoot == null)
             {
@@ -119,6 +128,46 @@ namespace Game
             return true;
         }
 
+        public bool IsBlockedAtTurn(int turnIndex)
+        {
+            turnIndex = Mathf.Max(0, turnIndex);
+
+            return CellType == RouteCellType.Wall ||
+                   (CellType == RouteCellType.TimedBarrier && !IsTimedBarrierPassableAtTurn(turnIndex));
+        }
+
+        public bool IsForbiddenAtTurn(int turnIndex)
+        {
+            return CellType == RouteCellType.Forbidden;
+        }
+
+        public bool IsTimedBarrierPassableAtTurn(int turnIndex)
+        {
+            if (CellType != RouteCellType.TimedBarrier)
+            {
+                return false;
+            }
+
+            turnIndex = Mathf.Max(0, turnIndex);
+            if ((turnIndex & 1) == 0)
+            {
+                return timedBarrierStartsPassable;
+            }
+
+            return !timedBarrierStartsPassable;
+        }
+
+        public void SetRoutePreviewHighlighted(bool highlighted)
+        {
+            if (_previewHighlighted == highlighted)
+            {
+                return;
+            }
+
+            _previewHighlighted = highlighted;
+            RefreshVisual();
+        }
+
         public void RefreshVisual()
         {
             if (!autoTint)
@@ -135,6 +184,11 @@ namespace Game
                 RouteCellType.TimedBarrier => _timedBarrierIsPassable ? timedBarrierPassableColor : timedBarrierBlockedColor,
                 _ => Color.white
             };
+
+            if (IsArgumentOccupant && !_consumed && _previewHighlighted)
+            {
+                targetColor = Color.Lerp(targetColor, previewArgumentColor, 0.75f);
+            }
 
             if (spriteRenderer == null)
             {
@@ -164,10 +218,11 @@ namespace Game
                     continue;
                 }
 
-                MaterialPropertyBlock propertyBlock = new();
-                targetRenderer.GetPropertyBlock(propertyBlock);
-                propertyBlock.SetColor("_Color", targetColor);
-                targetRenderer.SetPropertyBlock(propertyBlock);
+                _propertyBlock ??= new MaterialPropertyBlock();
+                _propertyBlock.Clear();
+                targetRenderer.GetPropertyBlock(_propertyBlock);
+                _propertyBlock.SetColor("_Color", targetColor);
+                targetRenderer.SetPropertyBlock(_propertyBlock);
             }
         }
 
@@ -218,7 +273,7 @@ namespace Game
             GridManager targetGrid = grid != null ? grid : fallbackGrid;
             if (targetGrid == null)
             {
-                targetGrid = FindObjectOfType<GridManager>(true);
+                targetGrid = FindAnyObjectByType<GridManager>(FindObjectsInactive.Include);
             }
 
             Vector3 surfaceNormal = targetGrid != null ? targetGrid.GetSurfaceNormal() : transform.up;

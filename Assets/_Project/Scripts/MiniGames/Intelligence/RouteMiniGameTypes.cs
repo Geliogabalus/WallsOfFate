@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Game
 {
-
     public enum RouteDirection
     {
         Up,
@@ -46,7 +45,6 @@ namespace Game
         MoveLeft,
         Wait,
         Undo,
-        Run,
         Reset
     }
 
@@ -110,6 +108,18 @@ namespace Game
                 RouteDirection.Right => RouteDirection.Down,
                 RouteDirection.Down => RouteDirection.Left,
                 RouteDirection.Left => RouteDirection.Up,
+                _ => direction
+            };
+        }
+
+        public static RouteDirection Opposite(RouteDirection direction)
+        {
+            return direction switch
+            {
+                RouteDirection.Up => RouteDirection.Down,
+                RouteDirection.Right => RouteDirection.Left,
+                RouteDirection.Down => RouteDirection.Up,
+                RouteDirection.Left => RouteDirection.Right,
                 _ => direction
             };
         }
@@ -199,7 +209,6 @@ namespace Game
                 RouteControlAction.MoveLeft => "←",
                 RouteControlAction.Wait => "⏸",
                 RouteControlAction.Undo => "↶",
-                RouteControlAction.Run => "▶",
                 RouteControlAction.Reset => "⟲",
                 _ => "?"
             };
@@ -215,7 +224,6 @@ namespace Game
                 RouteControlAction.MoveLeft => "Влево",
                 RouteControlAction.Wait => "Пауза",
                 RouteControlAction.Undo => "Отмена",
-                RouteControlAction.Run => "Старт",
                 RouteControlAction.Reset => "Сброс",
                 _ => action.ToString()
             };
@@ -231,7 +239,6 @@ namespace Game
                 RouteControlAction.MoveLeft => "A / ←",
                 RouteControlAction.Wait => "Space",
                 RouteControlAction.Undo => "R",
-                RouteControlAction.Run => "Enter",
                 RouteControlAction.Reset => "Mouse",
                 _ => string.Empty
             };

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,7 +25,9 @@ namespace Game
         private readonly Dictionary<Vector2Int, List<RouteGridOccupant>> _occupantLookup = new();
 
         public int RemainingArguments { get; private set; }
+        public int TotalArguments { get; private set; }
         public bool HasExitCell { get; private set; }
+        public bool HasSequencedArguments { get; private set; }
 
         public void RefreshLayout()
         {
@@ -57,6 +60,8 @@ namespace Game
         {
             HasExitCell = false;
             RemainingArguments = 0;
+            TotalArguments = 0;
+            HasSequencedArguments = false;
 
             foreach (KeyValuePair<Vector2Int, GridCell> pair in _cellLookup)
             {
@@ -67,6 +72,12 @@ namespace Game
                 }
 
                 cell.ResetState();
+
+                if (cell.IsArgumentCell)
+                {
+                    TotalArguments++;
+                    HasSequencedArguments |= cell.ArgumentSequenceOrder > 0;
+                }
 
                 if (cell.HasAvailableArgument)
                 {
@@ -91,6 +102,12 @@ namespace Game
                     }
 
                     occupant.ResetState();
+
+                    if (occupant.IsArgumentOccupant)
+                    {
+                        TotalArguments++;
+                        HasSequencedArguments |= occupant.ArgumentSequenceOrder > 0;
+                    }
 
                     if (occupant.HasAvailableArgument)
                     {
@@ -137,6 +154,28 @@ namespace Game
             return false;
         }
 
+        public bool IsBlockedAtTurn(Vector2Int position, int turnIndex)
+        {
+            if (_cellLookup.TryGetValue(position, out GridCell cell) && cell != null && cell.IsBlockedAtTurn(turnIndex))
+            {
+                return true;
+            }
+
+            if (_occupantLookup.TryGetValue(position, out List<RouteGridOccupant> occupants))
+            {
+                for (int index = 0; index < occupants.Count; index++)
+                {
+                    RouteGridOccupant occupant = occupants[index];
+                    if (occupant != null && occupant.IsBlockedAtTurn(turnIndex))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public bool IsForbidden(Vector2Int position)
         {
             if (_cellLookup.TryGetValue(position, out GridCell cell) && cell != null && cell.IsForbidden())
@@ -150,6 +189,28 @@ namespace Game
                 {
                     RouteGridOccupant occupant = occupants[index];
                     if (occupant != null && occupant.IsForbidden)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsForbiddenAtTurn(Vector2Int position, int turnIndex)
+        {
+            if (_cellLookup.TryGetValue(position, out GridCell cell) && cell != null && cell.IsForbiddenAtTurn(turnIndex))
+            {
+                return true;
+            }
+
+            if (_occupantLookup.TryGetValue(position, out List<RouteGridOccupant> occupants))
+            {
+                for (int index = 0; index < occupants.Count; index++)
+                {
+                    RouteGridOccupant occupant = occupants[index];
+                    if (occupant != null && occupant.IsForbiddenAtTurn(turnIndex))
                     {
                         return true;
                     }
@@ -210,12 +271,101 @@ namespace Game
             return collected;
         }
 
+        public int CollectArguments(Vector2Int position, bool useOrderedArguments, ref int nextRequiredSequence)
+        {
+            if (!useOrderedArguments)
+            {
+                return CollectArguments(position);
+            }
+
+            int collected = 0;
+
+            if (_cellLookup.TryGetValue(position, out GridCell cell) && cell != null)
+            {
+                if (cell.HasAvailableArgument && cell.ArgumentSequenceOrder <= 0 && cell.TryCollectArgument())
+                {
+                    collected++;
+                }
+            }
+
+            if (_occupantLookup.TryGetValue(position, out List<RouteGridOccupant> occupants))
+            {
+                for (int index = 0; index < occupants.Count; index++)
+                {
+                    RouteGridOccupant occupant = occupants[index];
+                    if (occupant != null &&
+                        occupant.HasAvailableArgument &&
+                        occupant.ArgumentSequenceOrder <= 0 &&
+                        occupant.TryCollectArgument())
+                    {
+                        collected++;
+                    }
+                }
+            }
+
+            bool collectedOrderedArgument;
+            do
+            {
+                collectedOrderedArgument = false;
+
+                if (_cellLookup.TryGetValue(position, out cell) &&
+                    cell != null &&
+                    cell.HasAvailableArgument &&
+                    cell.ArgumentSequenceOrder == nextRequiredSequence &&
+                    cell.TryCollectArgument())
+                {
+                    nextRequiredSequence++;
+                    collected++;
+                    collectedOrderedArgument = true;
+                }
+
+                if (collectedOrderedArgument)
+                {
+                    continue;
+                }
+
+                if (!_occupantLookup.TryGetValue(position, out occupants))
+                {
+                    continue;
+                }
+
+                for (int index = 0; index < occupants.Count; index++)
+                {
+                    RouteGridOccupant occupant = occupants[index];
+                    if (occupant == null ||
+                        !occupant.HasAvailableArgument ||
+                        occupant.ArgumentSequenceOrder != nextRequiredSequence ||
+                        !occupant.TryCollectArgument())
+                    {
+                        continue;
+                    }
+
+                    nextRequiredSequence++;
+                    collected++;
+                    collectedOrderedArgument = true;
+                    break;
+                }
+            } while (collectedOrderedArgument);
+
+            if (collected > 0)
+            {
+                RemainingArguments = Mathf.Max(0, RemainingArguments - collected);
+            }
+
+            return collected;
+        }
+
         public void AdvanceTurnState()
+        {
+            AdvanceTurnState(null);
+        }
+
+        public void AdvanceTurnState(Vector2Int? protectedPosition)
         {
             foreach (KeyValuePair<Vector2Int, GridCell> pair in _cellLookup)
             {
                 GridCell cell = pair.Value;
-                if (cell == null)
+                if (cell == null || (protectedPosition.HasValue && pair.Key == protectedPosition.Value))
                 {
                     continue;
                 }
@@ -229,7 +379,7 @@ namespace Game
                 for (int index = 0; index < occupants.Count; index++)
                 {
                     RouteGridOccupant occupant = occupants[index];
-                    if (occupant == null)
+                    if (occupant == null || (protectedPosition.HasValue && pair.Key == protectedPosition.Value))
                     {
                         continue;
                     }
@@ -302,6 +452,107 @@ namespace Game
             return IsInside(position);
         }
 
+        public bool TryGetGridPositionFromRay(Ray ray, out Vector2Int position)
+        {
+            RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, ~0, QueryTriggerInteraction.Collide);
+            if (hits.Length > 0)
+            {
+                Array.Sort(hits, (left, right) => left.distance.CompareTo(right.distance));
+
+                for (int index = 0; index < hits.Length; index++)
+                {
+                    RaycastHit hit = hits[index];
+
+                    GridCell cell = hit.collider.GetComponentInParent<GridCell>();
+                    if (cell != null)
+                    {
+                        position = cell.GridPosition;
+                        return true;
+                    }
+
+                    RouteGridOccupant occupant = hit.collider.GetComponentInParent<RouteGridOccupant>();
+                    if (occupant != null)
+                    {
+                        position = occupant.GridPosition;
+                        return true;
+                    }
+                }
+            }
+
+            Vector3 planePoint = GetBoardPlanePoint();
+            Plane boardPlaneWorld = new(GetSurfaceNormal(), planePoint);
+            if (!boardPlaneWorld.Raycast(ray, out float enter))
+            {
+                position = Vector2Int.zero;
+                return false;
+            }
+
+            Vector3 worldPoint = ray.GetPoint(enter);
+            if (!TryGetGridPositionFromWorld(worldPoint, out position))
+            {
+                return false;
+            }
+
+            float maxSnapDistance = Mathf.Max(Mathf.Abs(GetResolvedCellSpacing().x), Mathf.Abs(GetResolvedCellSpacing().y)) * 0.8f;
+            if (maxSnapDistance > 0.0001f)
+            {
+                Vector3 cellCenter = GetWorldPosition(position);
+                if ((cellCenter - worldPoint).sqrMagnitude > maxSnapDistance * maxSnapDistance)
+                {
+                    position = Vector2Int.zero;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool TryGetGridPositionFromScreenPoint(Camera camera, Vector2 screenPoint, out Vector2Int position)
+        {
+            position = Vector2Int.zero;
+
+            if (camera == null || !camera.isActiveAndEnabled)
+            {
+                return false;
+            }
+
+            bool hasCandidate = false;
+            float bestDistance = float.MaxValue;
+            Vector2Int bestPosition = Vector2Int.zero;
+
+            foreach (Vector2Int gridPosition in EnumerateSelectablePositions())
+            {
+                Vector3 worldPoint = GetPickWorldPosition(gridPosition);
+                Vector3 screenCellPoint = camera.WorldToScreenPoint(worldPoint);
+                if (screenCellPoint.z <= 0f)
+                {
+                    continue;
+                }
+
+                float screenDistance = ((Vector2)screenCellPoint - screenPoint).sqrMagnitude;
+                if (!hasCandidate || screenDistance < bestDistance)
+                {
+                    hasCandidate = true;
+                    bestDistance = screenDistance;
+                    bestPosition = gridPosition;
+                }
+            }
+
+            if (!hasCandidate)
+            {
+                return false;
+            }
+
+            float maxPickRadius = GetScreenPickRadius(camera, bestPosition);
+            if (bestDistance > maxPickRadius * maxPickRadius)
+            {
+                return false;
+            }
+
+            position = bestPosition;
+            return true;
+        }
+
         public Vector3 GetSurfaceNormal()
         {
             Transform targetOrigin = origin != null ? origin : transform;
@@ -358,6 +609,36 @@ namespace Game
             RefreshLayout();
         }
 
+        public void ApplyRoutePreviewHighlights(ISet<Vector2Int> highlightedPositions)
+        {
+            foreach (KeyValuePair<Vector2Int, GridCell> pair in _cellLookup)
+            {
+                GridCell cell = pair.Value;
+                if (cell == null)
+                {
+                    continue;
+                }
+
+                bool highlighted = highlightedPositions != null && highlightedPositions.Contains(pair.Key);
+                cell.SetRoutePreviewHighlighted(highlighted);
+            }
+
+            foreach (KeyValuePair<Vector2Int, List<RouteGridOccupant>> pair in _occupantLookup)
+            {
+                bool highlighted = highlightedPositions != null && highlightedPositions.Contains(pair.Key);
+                List<RouteGridOccupant> occupants = pair.Value;
+
+                for (int index = 0; index < occupants.Count; index++)
+                {
+                    RouteGridOccupant occupant = occupants[index];
+                    if (occupant != null)
+                    {
+                        occupant.SetRoutePreviewHighlighted(highlighted);
+                    }
+                }
+            }
+        }
+
         private void BuildOccupantLookup()
         {
             _occupantLookup.Clear();
@@ -367,7 +648,7 @@ namespace Game
                 return;
             }
 
-            RouteGridOccupant[] occupants = FindObjectsOfType<RouteGridOccupant>(true);
+            RouteGridOccupant[] occupants = FindObjectsByType<RouteGridOccupant>(FindObjectsInactive.Include);
             for (int index = 0; index < occupants.Length; index++)
             {
                 RouteGridOccupant occupant = occupants[index];
@@ -413,6 +694,76 @@ namespace Game
             }
 
             return resolvedSpacing;
+        }
+
+        private Vector3 GetBoardPlanePoint()
+        {
+            Transform targetOrigin = origin != null ? origin : transform;
+            return targetOrigin.position + GetSurfaceNormal() * surfaceOffset;
+        }
+
+        private float GetScreenPickRadius(Camera camera, Vector2Int anchorPosition)
+        {
+            Vector3 anchorScreenPoint = camera.WorldToScreenPoint(GetPickWorldPosition(anchorPosition));
+            float nearestNeighborDistance = float.MaxValue;
+
+            foreach (Vector2Int gridPosition in EnumerateSelectablePositions())
+            {
+                if ((Mathf.Abs(gridPosition.x - anchorPosition.x) + Mathf.Abs(gridPosition.y - anchorPosition.y)) != 1)
+                {
+                    continue;
+                }
+
+                Vector3 neighborScreenPoint = camera.WorldToScreenPoint(GetPickWorldPosition(gridPosition));
+                if (neighborScreenPoint.z <= 0f)
+                {
+                    continue;
+                }
+
+                float distance = Vector2.Distance(anchorScreenPoint, neighborScreenPoint);
+                if (distance > 0.001f && distance < nearestNeighborDistance)
+                {
+                    nearestNeighborDistance = distance;
+                }
+            }
+
+            if (nearestNeighborDistance < float.MaxValue)
+            {
+                return Mathf.Max(24f, nearestNeighborDistance * 0.45f);
+            }
+
+            return 72f;
+        }
+
+        private IEnumerable<Vector2Int> EnumerateSelectablePositions()
+        {
+            if (_cellLookup.Count > 0)
+            {
+                foreach (KeyValuePair<Vector2Int, GridCell> pair in _cellLookup)
+                {
+                    yield return pair.Key;
+                }
+
+                yield break;
+            }
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    yield return new Vector2Int(x, y);
+                }
+            }
+        }
+
+        private Vector3 GetPickWorldPosition(Vector2Int position)
+        {
+            if (_cellLookup.TryGetValue(position, out GridCell cell) && cell != null)
+            {
+                return cell.transform.position;
+            }
+
+            return GetWorldPosition(position);
         }
 
         private bool CanRefreshInValidation()
